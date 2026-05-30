@@ -14,13 +14,13 @@ Java & Spring Boot- Production-grade backend architecture.
 Spring Data JPA & Hibernate** - Object-Relational Mapping for database management.
 RESTful APIs** - Clean, secure, and well-structured API endpoints for frontend integration.
 
-✨ Key Features
-product Management:** Dynamic product listing, advanced filtering, searching, and sorting.
-Shopping Cart System:* Fully functional cart with real-time price updates and quantity management.
+Key Features
+product Management: Dynamic product listing, advanced filtering, searching, and sorting.
+Shopping Cart System:Fully functional cart with real-time price updates and quantity management.
 
 Responsive Design: Optimized for all screen sizes, from mobile phones to high-res desktops using a hybrid of Tailwind and Bootstrap.
 Robust API Integration: Seamless data fetching and error handling between React and Spring Boot.
-📸 Project Showcase & Architecture
+Project Showcase & Architecture
 The backend is engineered with Spring Boot focusing on clean architecture, scalable database design, and REST principles, while the frontend is highly optimized for performance and fluid user experience.
 
 ⚙️ Setup & Installation
