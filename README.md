@@ -5,14 +5,14 @@ Live Demo
 Tech Stack
 
 Frontend
-React.js & Vite - For building a fast, optimized single-page application (SPA).
+TypeScript & Vite - For building a fast, optimized single-page application (SPA).
 Tailwind CSS - Used for rapid UI development and modern components.
 Bootstrap- Leveraged for reliable responsive layouts and structured dashboard elements.
 
 Backend
 Java & Spring Boot- Production-grade backend architecture.
-Spring Data JPA & Hibernate** - Object-Relational Mapping for database management.
-RESTful APIs** - Clean, secure, and well-structured API endpoints for frontend integration.
+SQL Object-Relational Mapping for database management.
+RESTful APIs Clean, secure, and well-structured API endpoints for frontend integration.
 
 Key Features
 product Management: Dynamic product listing, advanced filtering, searching, and sorting.
@@ -30,7 +30,7 @@ Backend (Spring Boot)
 Open the backend folder in IntelliJ IDEA.
 Ensure you have JDK 17+ configured.
 Run the application via ECommerceApplication.java.
-Frontend (React + Vite)
+Frontend (TypeScript + Vite)
 
 Open the frontend folder in VS Code.
 Run npm install to install dependencies.
