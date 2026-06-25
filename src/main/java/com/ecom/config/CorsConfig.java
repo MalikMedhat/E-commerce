@@ -16,6 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(List.of(
+                "https://e-commerce-malikmedhat.vercel.app",
                 "https://e-commerce-*-malikmedhat.vercel.app"
         ));
 
