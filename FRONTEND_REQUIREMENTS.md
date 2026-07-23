@@ -1,0 +1,878 @@
+# React Frontend - E-Commerce Application
+## Complete Requirements & Architecture Prompt
+
+---
+
+## PROJECT OVERVIEW
+
+Build a **production-ready React frontend** for the e-commerce backend (Spring Boot API running on port 8088).
+
+**Tech Stack:**
+- React 18+ (with Vite or Create React App)
+- TypeScript
+- React Router v6+ (for navigation)
+- Redux or Zustand (state management)
+- Axios or Fetch API (HTTP client)
+- Stripe.js for payments
+- TailwindCSS or Material-UI (styling)
+- React Query (API caching)
+
+**Backend API Base:** `http://localhost:8088/api`
+
+---
+
+## DOMAIN ENTITIES & API CONTRACTS
+
+### 1. Product
+```typescript
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: {
+    id: number;
+    name: string;
+  };
+}
+
+// API: GET /products
+// Returns: Product[]
+```
+
+### 2. User & Authentication
+```typescript
+interface User {
+  userId: number;
+  email: string;
+  role: 'CUSTOMER' | 'ADMIN';
+  token: string;
+  refreshToken: string;
+}
+
+interface AuthRequest {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  userId: number;
+  email: string;
+  token: string;
+  refreshToken: string;
+  role: 'CUSTOMER' | 'ADMIN';
+}
+
+// API: POST /auth/register
+// API: POST /auth/login
+// Returns: AuthResponse
+```
+
+### 3. Cart
+```typescript
+interface CartItem {
+  id: number;
+  productId: number;
+  productName: string;
+  price: number;
+  quantity: number;
+}
+
+interface Cart {
+  id: number;
+  items: CartItem[];
+  total: number;
+}
+
+interface AddItemToCartRequest {
+  productId: number;
+  quantity: number;
+}
+
+interface UpdateCartItemRequest {
+  cartItemId: number;
+  quantity: number;
+}
+
+// API: GET /cart
+// API: POST /cart/items (AddItemToCartRequest)
+// API: PUT /cart/items/{id} (UpdateCartItemRequest)
+// API: DELETE /cart/items/{id}
+// API: DELETE /cart (clear)
+// Returns: Cart
+```
+
+### 4. Order
+```typescript
+interface OrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  priceAtPurchase: number;
+  quantity: number;
+}
+
+interface Order {
+  id: number;
+  userId: number;
+  status: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  items: OrderItem[];
+  total: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CheckoutRequest {
+  // Empty - uses current cart
+}
+
+// API: POST /orders/checkout (CheckoutRequest)
+// API: GET /orders (order history)
+// API: GET /orders/{id}
+// API: PUT /orders/{id}/cancel
+// Returns: Order
+```
+
+### 5. Payment (Stripe)
+```typescript
+interface CreatePaymentIntentRequest {
+  orderId: number;
+}
+
+interface PaymentIntentResponse {
+  clientSecret: string;
+  amount: number;
+  currency: string;
+}
+
+// API: POST /payments/create-intent (CreatePaymentIntentRequest)
+// Returns: PaymentIntentResponse
+
+// Webhook (backend handles): POST /payments/webhook
+// Frontend never calls this - Stripe calls backend
+```
+
+---
+
+## PAGE STRUCTURE & COMPONENTS
+
+### 1. **Public Pages** (No Auth Required)
+
+#### ProductsPage / HomePage
+- Display all products in grid layout
+- Search products by name
+- Filter by category
+- Sort by price (low to high, high to low)
+- Click product → see details in modal or navigate to ProductDetailsPage
+- Add to cart button (requires login redirect if not authenticated)
+
+**Components:**
+- ProductCard (image, name, price, add to cart button)
+- ProductGrid (responsive layout)
+- SearchBar
+- CategoryFilter
+- SortDropdown
+
+#### ProductDetailsPage
+- Full product info with larger image
+- Description, price, category
+- Quantity selector (1-10)
+- Add to cart button
+- Related products section
+- Reviews (optional for Phase 2)
+
+**Components:**
+- ProductGallery (image carousel)
+- ProductInfo
+- QuantitySelector
+- AddToCartButton
+- RelatedProducts
+
+#### LoginPage
+- Email input
+- Password input
+- Login button
+- Link to RegisterPage
+- Remember me checkbox (optional)
+- Error messages
+
+**Components:**
+- LoginForm
+
+#### RegisterPage
+- Email input
+- Password input
+- Confirm password input
+- Register button
+- Link to LoginPage
+- Password strength indicator
+- Error messages
+
+**Components:**
+- RegisterForm
+
+---
+
+### 2. **Protected Pages** (Auth Required)
+
+#### CartPage
+- List of items with:
+  - Product image thumbnail
+  - Product name
+  - Price per unit
+  - Quantity selector (editable)
+  - Subtotal per line
+  - Remove button
+- Cart summary:
+  - Subtotal
+  - Tax (optional for Phase 2)
+  - Shipping (optional for Phase 2)
+  - **Total**
+- Continue shopping button
+- Checkout button (→ CheckoutPage)
+- Empty cart message if no items
+
+**Components:**
+- CartItem (product line)
+- CartSummary
+- EmptyCart
+
+#### CheckoutPage
+- Step indicator (Cart → Shipping → Billing → Payment)
+
+**Step 1: Cart Review**
+- Non-editable order summary
+- Next button
+
+**Step 2: Shipping Address**
+- Street address input
+- City, state, ZIP inputs
+- Country dropdown
+- Use existing address checkbox (if user has saved addresses)
+- Save for later checkbox
+- Next button
+
+**Step 3: Billing Address**
+- Same as shipping checkbox
+- OR enter different billing address
+- Next button
+
+**Step 4: Payment**
+- Stripe card element (from @stripe/react-stripe-js)
+- Cardholder name
+- Email confirmation
+- Order total recap
+- Place order button
+- Loading state during payment processing
+
+**Components:**
+- CheckoutStepper
+- AddressForm
+- StripeCardElement
+- OrderSummary
+- PaymentForm
+
+#### OrderConfirmationPage
+- Order number
+- Confirmation message ("Thank you for your purchase!")
+- Order details:
+  - Items (product name, quantity, price)
+  - Total
+  - Status (PAID)
+  - Estimated delivery date
+- Order history link
+- Continue shopping button
+
+**Components:**
+- ConfirmationHeader
+- OrderDetails
+- ItemsList
+
+#### OrderHistoryPage
+- List of all user orders with:
+  - Order ID
+  - Order date
+  - Status badge (PENDING, PAID, SHIPPED, DELIVERED, CANCELLED)
+  - Total amount
+  - Click → OrderDetailsPage
+  - Cancel button (if cancellable)
+- Pagination or infinite scroll
+- Filter by status (optional)
+
+**Components:**
+- OrderCard
+- OrdersList
+- StatusBadge
+- PaginationControls
+
+#### OrderDetailsPage
+- Single order view with:
+  - Order ID
+  - Order date
+  - Status timeline (PENDING → PAID → SHIPPED → DELIVERED)
+  - Shipping address
+  - Items ordered
+  - Subtotal, tax, shipping, total
+  - Tracking number (if shipped)
+  - Cancel button (if PENDING/PAID)
+
+**Components:**
+- OrderHeader
+- StatusTimeline
+- ShippingInfo
+- OrderItemsList
+
+#### ProfilePage (Optional Phase 2)
+- User email
+- Saved addresses list
+- Change password
+- Logout button
+
+**Components:**
+- UserInfo
+- AddressBook
+- ChangePasswordForm
+
+---
+
+### 3. **Navigation & Layout**
+
+#### Header/Navbar
+- Logo (clickable → HomePage)
+- Search bar
+- Navigation links:
+  - Home
+  - Products
+  - [Conditional] Cart (shows item count badge)
+  - [Conditional] Orders
+  - [Conditional] Profile
+  - [Conditional] Logout
+  - [Conditional] Login/Register (if not authenticated)
+- Mobile hamburger menu
+
+**Components:**
+- Navbar
+- NavMenu
+- CartBadge
+
+#### Footer
+- Company info
+- Links (About, Contact, Privacy, Terms)
+- Social links
+- Newsletter signup (optional)
+
+**Components:**
+- Footer
+
+#### Layout Wrapper
+- Navbar at top
+- Main content (routes)
+- Footer at bottom
+- Toast notifications (Toastify or custom)
+
+**Components:**
+- AppLayout
+- ToastContainer
+
+---
+
+## STATE MANAGEMENT (Redux/Zustand)
+
+### Redux Store Structure:
+```
+store/
+├── slices/
+│   ├── authSlice.ts (user, token, isAuthenticated, login(), logout(), register())
+│   ├── cartSlice.ts (cart, items, total, addItem(), removeItem(), updateItem(), clearCart())
+│   ├── productsSlice.ts (products, selectedProduct, loading, error, fetchProducts())
+│   ├── ordersSlice.ts (orders, selectedOrder, status, fetchOrders(), fetchOrderById())
+│   └── paymentSlice.ts (payment, clientSecret, status, createPaymentIntent(), confirmPayment())
+├── selectors/
+│   ├── authSelectors.ts (selectUser, selectIsAuthenticated, selectToken)
+│   ├── cartSelectors.ts (selectCart, selectCartTotal, selectCartItems)
+│   ├── productsSelectors.ts (selectProducts, selectSelectedProduct)
+│   ├── ordersSelectors.ts (selectOrders, selectSelectedOrder)
+│   └── paymentSelectors.ts (selectPaymentStatus, selectClientSecret)
+└── store.ts (configure Redux)
+```
+
+### Zustand Alternative:
+```typescript
+// stores/useAuthStore.ts
+create((set) => ({
+  user: null,
+  token: null,
+  login: (email, password) => { /* ... */ },
+  logout: () => { /* ... */ },
+  register: (email, password) => { /* ... */ }
+}))
+
+// stores/useCartStore.ts
+create((set) => ({
+  cart: { items: [], total: 0 },
+  addItem: (product, quantity) => { /* ... */ },
+  removeItem: (cartItemId) => { /* ... */ },
+  updateItem: (cartItemId, quantity) => { /* ... */ },
+  clearCart: () => { /* ... */ }
+}))
+```
+
+---
+
+## API CLIENT SETUP
+
+### Axios Instance with Interceptors
+```typescript
+// api/client.ts
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8088/api',
+  timeout: 10000,
+});
+
+// Request interceptor - add JWT token to every request
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Response interceptor - handle 401 (token expired)
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Logout user, redirect to login
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
+### API Service Methods
+```typescript
+// api/productService.ts
+export const productService = {
+  getAll: () => apiClient.get<Product[]>('/products'),
+  getById: (id: number) => apiClient.get<Product>(`/products/${id}`),
+  getCategories: () => apiClient.get<Category[]>('/categories'),
+};
+
+// api/authService.ts
+export const authService = {
+  register: (email: string, password: string) => 
+    apiClient.post<AuthResponse>('/auth/register', { email, password }),
+  login: (email: string, password: string) => 
+    apiClient.post<AuthResponse>('/auth/login', { email, password }),
+  refreshToken: (token: string) => 
+    apiClient.post('/auth/refresh', { token }),
+};
+
+// api/cartService.ts
+export const cartService = {
+  getCart: () => apiClient.get<Cart>('/cart'),
+  addItem: (productId: number, quantity: number) => 
+    apiClient.post<Cart>('/cart/items', { productId, quantity }),
+  updateItem: (cartItemId: number, quantity: number) => 
+    apiClient.put<Cart>(`/cart/items/${cartItemId}`, { quantity }),
+  removeItem: (cartItemId: number) => 
+    apiClient.delete<Cart>(`/cart/items/${cartItemId}`),
+  clearCart: () => apiClient.delete<Cart>('/cart'),
+};
+
+// api/orderService.ts
+export const orderService = {
+  checkout: () => apiClient.post<Order>('/orders/checkout', {}),
+  getOrders: () => apiClient.get<Order[]>('/orders'),
+  getOrderById: (id: number) => apiClient.get<Order>(`/orders/${id}`),
+  cancelOrder: (id: number) => apiClient.put<Order>(`/orders/${id}/cancel`, {}),
+};
+
+// api/paymentService.ts
+export const paymentService = {
+  createPaymentIntent: (orderId: number) => 
+    apiClient.post<PaymentIntentResponse>('/payments/create-intent', { orderId }),
+};
+```
+
+---
+
+## AUTHENTICATION FLOW
+
+### Register Flow
+1. User fills RegisterForm (email, password)
+2. Submit → `authService.register(email, password)`
+3. Backend returns `{ userId, email, token, refreshToken, role }`
+4. Store in Redux/Zustand + localStorage
+5. Redirect to HomePage
+6. Navbar shows user email + logout button
+
+### Login Flow
+1. User fills LoginForm (email, password)
+2. Submit → `authService.login(email, password)`
+3. Backend returns `{ userId, email, token, refreshToken, role }`
+4. Store token in localStorage and Redux
+5. Redirect to HomePage or previous page
+6. API client adds token to all future requests
+
+### Protected Routes
+```typescript
+// PrivateRoute.tsx
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated } = useSelector(selectAuthState);
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+// Usage
+<Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
+<Route path="/checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
+<Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
+```
+
+---
+
+## CHECKOUT FLOW (Detailed)
+
+### Step 1: Add to Cart
+- User on HomePage sees products
+- Clicks "Add to Cart" on ProductCard
+- Modal opens for quantity selection (1-10)
+- User clicks "Add"
+- Request: `POST /api/cart/items { productId, quantity }`
+- Cart badge in navbar updates
+- Toast: "Added to cart!"
+
+### Step 2: View Cart
+- User clicks cart icon or cart link
+- CartPage loads via `GET /api/cart`
+- Displays CartItem rows with edit/remove buttons
+- User can update quantities or remove items
+- Cart total recalculates in real-time
+- Clicks "Checkout" button → CheckoutPage
+
+### Step 3: Checkout Stepper
+**Page 1: Cart Review**
+- Non-editable order summary
+- Items, quantities, subtotal
+- Next → Page 2
+
+**Page 2: Shipping Address**
+- AddressForm component
+- Fields: street, city, state, ZIP, country
+- Save address checkbox
+- Next → Page 3
+
+**Page 3: Billing Address**
+- "Same as shipping" radio button (selected by default)
+- OR different address form
+- Next → Page 4
+
+**Page 4: Payment**
+- OrderSummary (items, total)
+- Stripe card element (@stripe/react-stripe-js)
+- Cardholder name input
+- Email confirmation
+- "Place Order" button
+
+### Step 5: Create Payment
+- User clicks "Place Order"
+- Frontend:
+  1. Call `POST /api/orders/checkout` → creates Order with status PENDING
+  2. Get `orderId` from response
+  3. Call `POST /api/payments/create-intent { orderId }` → get `clientSecret`
+  4. Use Stripe.js to confirm payment:
+     ```typescript
+     const { paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+       payment_method: {
+         card: cardElement,
+         billing_details: { name: cardholderName, email }
+       }
+     });
+     ```
+  5. If successful, redirect to OrderConfirmationPage
+
+### Step 6: Webhook (Backend Only)
+- Stripe → `POST /api/payments/webhook`
+- Backend verifies webhook signature
+- Updates Order status: PENDING → PAID
+- (Frontend doesn't handle this)
+
+### Step 7: Confirmation
+- OrderConfirmationPage shows:
+  - Order number
+  - "Thank you!" message
+  - Order details
+  - Estimated delivery date
+  - Link to order history
+
+---
+
+## ROUTING STRUCTURE
+
+```typescript
+// App.tsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+<BrowserRouter>
+  <Routes>
+    {/* Public */}
+    <Route path="/" element={<HomePage />} />
+    <Route path="/products" element={<ProductsPage />} />
+    <Route path="/products/:id" element={<ProductDetailsPage />} />
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/register" element={<RegisterPage />} />
+    <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+
+    {/* Protected */}
+    <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
+    <Route path="/checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
+    <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
+    <Route path="/orders/:id" element={<PrivateRoute><OrderDetailsPage /></PrivateRoute>} />
+    <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+
+    {/* 404 */}
+    <Route path="*" element={<NotFoundPage />} />
+  </Routes>
+</BrowserRouter>
+```
+
+---
+
+## COMPONENT TREE
+
+```
+App
+├── Navbar
+│   ├── Logo
+│   ├── SearchBar
+│   ├── NavMenu
+│   │   ├── HomeLink
+│   │   ├── ProductsLink
+│   │   ├── CartLink (with badge)
+│   │   ├── OrdersLink (if authenticated)
+│   │   ├── ProfileLink (if authenticated)
+│   │   └── LogoutButton (if authenticated)
+│   └── MobileMenu (hamburger)
+├── Main Content (Route component)
+│   ├── HomePage
+│   │   ├── Hero
+│   │   ├── ProductGrid
+│   │   │   └── ProductCard[] (click → ProductDetailsPage)
+│   │   └── CategoriesSection
+│   ├── ProductDetailsPage
+│   │   ├── ProductGallery
+│   │   ├── ProductInfo
+│   │   ├── QuantitySelector
+│   │   ├── AddToCartButton
+│   │   └── RelatedProducts
+│   ├── CartPage
+│   │   ├── CartItems[]
+│   │   │   └── CartItem
+│   │   │       ├── ProductImage
+│   │   │       ├── ProductName
+│   │   │       ├── Price
+│   │   │       ├── QuantitySelector
+│   │   │       └── RemoveButton
+│   │   └── CartSummary
+│   │       ├── Subtotal
+│   │       ├── Tax
+│   │       ├── Total
+│   │       └── CheckoutButton
+│   ├── CheckoutPage
+│   │   ├── Stepper
+│   │   ├── Step 1: CartReview
+│   │   ├── Step 2: ShippingAddress
+│   │   ├── Step 3: BillingAddress
+│   │   └── Step 4: PaymentForm
+│   │       ├── StripeCardElement
+│   │       ├── CardholderName
+│   │       ├── Email
+│   │       └── PlaceOrderButton
+│   ├── OrderConfirmationPage
+│   │   ├── ConfirmationHeader
+│   │   ├── OrderDetails
+│   │   └── ItemsList
+│   ├── OrderHistoryPage
+│   │   ├── OrderCards[]
+│   │   │   └── OrderCard (status, date, total)
+│   │   └── PaginationControls
+│   ├── OrderDetailsPage
+│   │   ├── OrderHeader
+│   │   ├── StatusTimeline
+│   │   ├── ShippingInfo
+│   │   ├── ItemsList
+│   │   └── CancelButton
+│   ├── LoginPage
+│   │   └── LoginForm
+│   ├── RegisterPage
+│   │   └── RegisterForm
+│   └── ProfilePage
+│       ├── UserInfo
+│       ├── AddressBook
+│       └── LogoutButton
+└── Footer
+    ├── CompanyInfo
+    ├── Links
+    └── SocialLinks
+```
+
+---
+
+## ERROR HANDLING
+
+### Global Error Handling
+- Axios interceptor catches 401 (unauthorized) → redirect to login
+- Toast notifications for user-friendly error messages
+- Network error handling
+- Timeout handling
+
+### Form Validation
+- Email format validation (regex)
+- Password strength requirements
+- Required field validation
+- Real-time validation feedback
+
+### API Error Messages
+- Display backend error messages to user
+- Generic fallback: "Something went wrong"
+
+---
+
+## STYLING & UI
+
+### Design System
+- Color scheme: Primary, Secondary, Success, Error, Warning
+- Typography: Heading sizes (h1-h6), body text
+- Spacing: Consistent margins/padding
+- Breakpoints: Mobile, tablet, desktop responsive
+
+### Component Libraries (Choose One)
+1. **TailwindCSS** (utility-first, lightweight)
+2. **Material-UI** (component library, batteries-included)
+3. **React Bootstrap** (Bootstrap-based)
+4. **Chakra UI** (accessible components)
+
+### Key Pages Styling
+- **HomePage**: Hero banner, product grid (3-4 columns responsive)
+- **CartPage**: Two-column layout (items left, summary right)
+- **CheckoutPage**: Centered stepper with card-based steps
+- **ProductDetailsPage**: Large image left, info right (desktop), stacked mobile
+
+---
+
+## TESTING STRATEGY (Phase 2)
+
+### Unit Tests (Jest + React Testing Library)
+- Component rendering tests
+- User interaction tests (clicks, form submission)
+- Redux slice tests
+
+### Integration Tests
+- Full checkout flow
+- Login → cart → checkout → payment
+
+### E2E Tests (Cypress)
+- User journey tests
+
+---
+
+## PERFORMANCE & OPTIMIZATION
+
+- Code splitting (React.lazy + Suspense)
+- Image optimization (Unsplash CDN already used)
+- Memoization (React.memo, useMemo, useCallback)
+- Virtualization for long lists (if needed)
+- Lazy load components below the fold
+
+---
+
+## DEPLOYMENT
+
+- Build: `npm run build` → creates optimized bundle
+- Host on: Vercel, Netlify, AWS S3, or your own server
+- Environment variables for API_BASE_URL (dev vs production)
+- CORS configured in backend (already done in SecurityConfig)
+
+---
+
+## DEPENDENCIES TO INSTALL
+
+```bash
+# Core
+npm install react react-dom react-router-dom
+npm install @reduxjs/toolkit react-redux  # or zustand
+
+# API
+npm install axios
+
+# Stripe
+npm install @stripe/react-stripe-js @stripe/js
+
+# Notifications
+npm install react-toastify
+
+# Styling
+npm install tailwindcss postcss autoprefixer
+
+# Utilities
+npm install date-fns clsx typescript
+
+# Dev
+npm install -D typescript @types/react @types/node
+npm install -D @testing-library/react @testing-library/jest-dom jest
+```
+
+---
+
+## KEY DECISIONS FOR IMPLEMENTATION
+
+1. **State Management**: Redux vs Zustand?
+   - **Redux**: More boilerplate, better for complex apps
+   - **Zustand**: Simpler, less boilerplate
+
+2. **Styling**: TailwindCSS vs Material-UI?
+   - **TailwindCSS**: Lightweight, flexible
+   - **Material-UI**: Pre-built components, consistent design
+
+3. **Form Handling**: React Hook Form vs Formik?
+   - **React Hook Form**: Lighter weight, better performance
+   - **Formik**: More mature, better validation
+
+4. **Data Fetching**: React Query vs SWR vs plain Axios?
+   - **React Query**: Powerful caching, refetching
+   - **SWR**: Simpler, lighter weight
+   - **Plain Axios**: Most control, more boilerplate
+
+---
+
+## IMPLEMENTATION CHECKLIST
+
+### Phase 1: Core MVP
+- [ ] Setup project (Vite + React + TypeScript)
+- [ ] Navbar and routing
+- [ ] HomePage with products list (GET /api/products)
+- [ ] LoginPage and RegisterPage (auth flow)
+- [ ] CartPage (view/edit cart)
+- [ ] CheckoutPage (4-step stepper)
+- [ ] Payment integration (Stripe)
+- [ ] OrderConfirmationPage
+
+### Phase 2: Enhancement
+- [ ] ProductDetailsPage
+- [ ] OrderHistoryPage + OrderDetailsPage
+- [ ] ProfilePage
+- [ ] Search and filtering
+- [ ] Product reviews
+- [ ] Wishlist
+
+### Phase 3: Admin Dashboard
+- [ ] Admin routes
+- [ ] Order management
+- [ ] Product CRUD
+- [ ] Category management
+
+---
+
+**Ready to scaffold? Use this prompt for your React frontend developer or Claude!**
