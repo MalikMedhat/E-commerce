@@ -2,10 +2,12 @@ package com.ecom.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = "category")
 public class Product {
     @Id
     @GeneratedValue

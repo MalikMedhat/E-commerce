@@ -2,7 +2,7 @@
 A robust, production-ready Full-Stack E-Commerce application designed to deliver a seamless shopping experience. This project showcases modern architectural patterns, integrating a high-performance Java Spring Boot backend with a highly responsive React frontend.
 
 Live Demo
-Tech Stack
+[Tech Stack](https://e-commerce-malikmedhat.vercel.app/)
 
 Frontend
 TypeScript & Vite - For building a fast, optimized single-page application (SPA).

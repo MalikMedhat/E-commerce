@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "http://localhost:3000/")
 public class OrderController {
 
     private final OrderService orderService;
@@ -34,8 +33,15 @@ public class OrderController {
     @PostMapping("/checkout")
     public ResponseEntity<OrderResponseDTO> checkout() {
         Long userId = getCurrentUserId();
+        
+        if (userId == null) {
+            // For guest users, create a guest user
+            User guestUser = authService.createGuestUser();
+            Order order = orderService.createOrderFromCart(guestUser, cartService.getOrCreateCart(guestUser));
+            return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(order));
+        }
+        
         User user = authService.getUserById(userId);
-
         Order order = orderService.createOrderFromCart(user, cartService.getOrCreateCart(user));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(order));
@@ -44,6 +50,12 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getOrderHistory() {
         Long userId = getCurrentUserId();
+        
+        if (userId == null) {
+            // Guest users have no order history
+            return ResponseEntity.ok(List.of());
+        }
+        
         User user = authService.getUserById(userId);
 
         List<Order> orders = orderService.getUserOrderHistory(user);
@@ -99,7 +111,14 @@ public class OrderController {
     }
 
     private Long getCurrentUserId() {
-        JwtAuthenticationToken auth = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        return auth != null ? auth.getUserId() : null;
+        try {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+                return jwtAuth.getUserId();
+            }
+        } catch (Exception e) {
+            // Ignore any authentication errors
+        }
+        return null;
     }
 }

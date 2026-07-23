@@ -62,4 +62,12 @@ public class AuthService {
     public String generateRefreshToken(User user) {
         return jwtService.generateRefreshToken(user);
     }
+
+    public User createGuestUser() {
+        User guestUser = new User();
+        guestUser.setEmail("guest_" + System.currentTimeMillis() + "@temp.com");
+        guestUser.setPassword(passwordEncoder.encode("guest"));
+        guestUser.setRole(User.UserRole.CUSTOMER);
+        return userRepository.save(guestUser);
+    }
 }

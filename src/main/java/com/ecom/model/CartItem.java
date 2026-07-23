@@ -3,6 +3,7 @@ package com.ecom.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "cart_items")
 @Data
+@EqualsAndHashCode(exclude = {"cart", "product"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItem {
