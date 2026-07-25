@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, ShoppingBag, User, Menu, Package, LogOut, Zap } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, Package, LogOut, Cpu } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { useGetCart } from "@workspace/api-client-react";
@@ -91,8 +91,8 @@ export function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-1.5" data-testid="link-home-logo">
-            <Zap className="w-5 h-5 text-primary fill-primary" />
-            <span className="font-display font-extrabold text-xl tracking-wide gradient-text">VOLT</span>
+            <Cpu className="w-5 h-5 text-primary" />
+            <span className="font-display font-extrabold text-xl tracking-wide gradient-text">TECH HUB</span>
           </Link>
 
           {/* Desktop nav */}

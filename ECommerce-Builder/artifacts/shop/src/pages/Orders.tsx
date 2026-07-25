@@ -7,7 +7,7 @@ import { Package, ArrowRight, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function Orders() {
-  const { data: orders, isLoading } = useListOrders({
+  const { data: orders, isLoading, isError } = useListOrders({
     query: { queryKey: ['orders'] }
   });
 
@@ -35,6 +35,12 @@ export default function Orders() {
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="w-full h-32 rounded-none" />
             ))}
+          </div>
+        ) : isError ? (
+          <div className="py-24 text-center border border-dashed border-border bg-secondary/20 flex flex-col items-center">
+            <Package className="w-12 h-12 mb-4 text-muted-foreground" />
+            <h2 className="text-2xl font-display font-semibold mb-2">Unable to load orders</h2>
+            <p className="text-muted-foreground mb-8">Please try again later.</p>
           </div>
         ) : orders && orders.length > 0 ? (
           <div className="grid gap-6">

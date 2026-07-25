@@ -17,8 +17,8 @@ import {
 
 export default function ProductsPage() {
   const [location] = useLocation();
-  const searchParams = new URLSearchParams(window.location.search);
-  
+  const searchParams = new URLSearchParams(location.split("?")[1] || "");
+
   const initialSearch = searchParams.get("search") || "";
   const initialCategoryId = searchParams.get("categoryId") ? Number(searchParams.get("categoryId")) : undefined;
   const initialSort = (searchParams.get("sort") as ListProductsSort) || "newest";
@@ -36,7 +36,8 @@ export default function ProductsPage() {
 
   // Update from URL params if they change externally (e.g. search in navbar)
   useEffect(() => {
-    const s = searchParams.get("search");
+    const params = new URLSearchParams(location.split("?")[1] || "");
+    const s = params.get("search");
     if (s !== null) {
       setSearch(s);
       setPage(1);
@@ -44,14 +45,18 @@ export default function ProductsPage() {
   }, [location]);
 
   const { data: categories } = useListCategories();
-  
-  const { data: pageData, isLoading } = useListProducts({
+
+  const { data: pageData, isLoading, isError } = useListProducts({
     search: search || undefined,
     categoryId,
     sort,
     page,
     limit,
   });
+
+  // Safe fallbacks so the component never crashes when data is undefined
+  const products = pageData?.products ?? [];
+  const total = pageData?.total ?? 0;
 
   const clearFilters = () => {
     setSearch("");
@@ -64,7 +69,7 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen pt-24 pb-20">
       <div className="container px-4 md:px-6 mx-auto">
-        
+
         {/* Page Header */}
         <div className="mb-12 border-b border-border pb-8">
           <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tighter mb-4">
@@ -94,14 +99,14 @@ export default function ProductsPage() {
                   <div>
                     <h4 className="text-sm font-semibold mb-3">Categories</h4>
                     <div className="flex flex-col gap-2">
-                      <button 
+                      <button
                         onClick={() => setCategoryId(undefined)}
                         className={`text-left text-sm px-2 py-1.5 rounded-none ${categoryId === undefined ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-secondary'}`}
                       >
                         All Categories
                       </button>
                       {categories?.map(cat => (
-                        <button 
+                        <button
                           key={cat.id}
                           onClick={() => setCategoryId(cat.id)}
                           className={`text-left text-sm px-2 py-1.5 rounded-none ${categoryId === cat.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-secondary'}`}
@@ -117,14 +122,14 @@ export default function ProductsPage() {
 
             {/* Desktop Categories (Tabs style) */}
             <div className="hidden md:flex flex-wrap items-center gap-2">
-              <button 
+              <button
                 onClick={() => setCategoryId(undefined)}
                 className={`text-sm px-4 py-2 rounded-full border transition-colors ${categoryId === undefined ? 'border-primary bg-primary text-white' : 'border-border hover:border-primary/50 bg-background'}`}
               >
                 All
               </button>
               {categories?.map(cat => (
-                <button 
+                <button
                   key={cat.id}
                   onClick={() => setCategoryId(cat.id)}
                   className={`text-sm px-4 py-2 rounded-full border transition-colors ${categoryId === cat.id ? 'border-primary bg-primary text-white' : 'border-border hover:border-primary/50 bg-background'}`}
@@ -141,7 +146,7 @@ export default function ProductsPage() {
                 <X className="w-4 h-4 mr-2" /> Clear
               </Button>
             )}
-            
+
             <div className="flex items-center gap-2 flex-1 md:flex-none">
               <SlidersHorizontal className="w-4 h-4 text-muted-foreground hidden md:block" />
               <Select value={sort} onValueChange={(val) => setSort(val as ListProductsSort)}>
@@ -169,7 +174,15 @@ export default function ProductsPage() {
               </div>
             ))}
           </div>
-        ) : pageData?.products.length === 0 ? (
+        ) : isError ? (
+          <div className="py-32 text-center flex flex-col items-center justify-center border border-dashed border-border">
+            <h3 className="text-2xl font-display font-medium mb-2">Something went wrong</h3>
+            <p className="text-muted-foreground mb-6">Unable to load products. Please try again later.</p>
+            <Button variant="outline" onClick={() => window.location.reload()} className="rounded-none uppercase tracking-widest text-xs">
+              Retry
+            </Button>
+          </div>
+        ) : products.length === 0 ? (
           <div className="py-32 text-center flex flex-col items-center justify-center border border-dashed border-border">
             <h3 className="text-2xl font-display font-medium mb-2">No items found</h3>
             <p className="text-muted-foreground mb-6">Try adjusting your filters or search term.</p>
@@ -180,16 +193,16 @@ export default function ProductsPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12 mb-16">
-              {pageData?.products.map((product, i) => (
+              {products.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
             </div>
 
             {/* Pagination */}
-            {pageData && pageData.total > limit && (
+            {total > limit && (
               <div className="flex items-center justify-center gap-2 border-t border-border pt-8">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="rounded-none h-10 w-24"
                   disabled={page === 1}
                   onClick={() => setPage(p => p - 1)}
@@ -197,12 +210,12 @@ export default function ProductsPage() {
                   Previous
                 </Button>
                 <div className="text-sm font-medium mx-4">
-                  Page {page} of {Math.ceil(pageData.total / limit)}
+                  Page {page} of {Math.ceil(total / limit)}
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="rounded-none h-10 w-24"
-                  disabled={page >= Math.ceil(pageData.total / limit)}
+                  disabled={page >= Math.ceil(total / limit)}
                   onClick={() => setPage(p => p + 1)}
                 >
                   Next

@@ -15,7 +15,7 @@ export default function Checkout() {
   const [billingAddress, setBillingAddress] = useState("");
   const [useShippingForBilling, setUseShippingForBilling] = useState(true);
 
-  const { data: cart, isLoading: isCartLoading } = useGetCart({
+  const { data: cart, isLoading: isCartLoading, isError: isCartError } = useGetCart({
     query: { queryKey: ['/api/cart'] }
   });
 
@@ -56,6 +56,10 @@ export default function Checkout() {
 
   if (isCartLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading checkout...</div>;
+  }
+
+  if (isCartError) {
+    return <div className="min-h-screen flex items-center justify-center">Unable to load cart. Please try again.</div>;
   }
 
   return (

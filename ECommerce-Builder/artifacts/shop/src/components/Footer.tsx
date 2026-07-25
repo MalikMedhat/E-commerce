@@ -7,10 +7,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="font-display font-bold text-3xl tracking-tighter block mb-6">
-              ATELIER
+              TECH HUB
             </Link>
             <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Curated objects for purposeful living. We source the finest materials and partner with independent makers to bring you products that last a lifetime.
+              Curated drops of the most forward-thinking gear on the market. Premium tech products designed to elevate your everyday.
             </p>
           </div>
           <div>
@@ -32,7 +32,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} ATELIER. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} TECH HUB. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span className="hover:text-foreground cursor-pointer transition-colors">Privacy Policy</span>
             <span className="hover:text-foreground cursor-pointer transition-colors">Terms of Service</span>

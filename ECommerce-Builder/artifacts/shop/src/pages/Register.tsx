@@ -71,7 +71,7 @@ export default function Register() {
       <div className="w-full max-w-md animate-fade-in-up bg-background p-8 border border-border shadow-2xl shadow-black/5">
         <div className="mb-10">
           <h1 className="text-3xl font-display font-bold tracking-tighter mb-2">Create Account</h1>
-          <p className="text-muted-foreground text-sm">Join the Atelier community for faster checkout and order tracking.</p>
+          <p className="text-muted-foreground text-sm">Join the Tech Hub community for faster checkout and order tracking.</p>
         </div>
 
         <Form {...form}>
