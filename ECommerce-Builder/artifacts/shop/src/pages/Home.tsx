@@ -166,7 +166,7 @@ export default function Home() {
                   className="group relative h-48 rounded-xl overflow-hidden border border-border"
                 >
                   <img
-                    src={CATEGORY_IMAGES[i] || CATEGORY_IMAGES[0]}
+                    src={CATEGORY_IMAGES[i] || CATEGORY_IMAGES[0]}g
                     alt={cat.name}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
