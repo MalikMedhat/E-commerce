@@ -5,7 +5,7 @@ import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
 import { rm } from "node:fs/promises";
 
-// Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
+
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
@@ -43,8 +43,7 @@ async function buildAll() {
       "re2",
       "farmhash",
       "xxhash-addon",
-      "bufferutil",
-      "utf-8-validate",
+      // "bufferutil" and "utf-8-validate" are optional ws dependencies, it's better to uninstall them
       "ssh2",
       "cpu-features",
       "dtrace-provider",
