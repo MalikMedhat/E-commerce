@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cart")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class CartController {
 
     private final CartService cartService;
@@ -30,12 +31,8 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getCart() {
+    public ResponseEntity<CartDTO> getCart() {
         Long userId = getCurrentUserId();
-        if (userId == null) {
-            // Unauthenticated callers (e.g. shop homepage) get an empty cart stub
-            return ResponseEntity.ok(new java.util.HashMap<>());
-        }
         User user = authService.getUserById(userId);
         Cart cart = cartService.getOrCreateCart(user);
 
@@ -43,26 +40,14 @@ public class CartController {
     }
 
     @PostMapping("/items")
-    public ResponseEntity<CartDTO> addItemToCart(@RequestBody AddItemToCartDTO request) {
+    public ResponseEntity<CartItemDTO> addItemToCart(@RequestBody AddItemToCartDTO request) {
         Long userId = getCurrentUserId();
-
-        User user;
-        if (userId == null) {
-            // For guest users, create a temporary user or use session-based cart
-            // For now, we'll create a guest user
-            user = authService.createGuestUser();
-        } else {
-            user = authService.getUserById(userId);
-        }
-        
+        User user = authService.getUserById(userId);
         Cart cart = cartService.getOrCreateCart(user);
-        
-        cartService.addItemToCart(
-                cart,
-                request.getProductId(),
-                request.getQuantity());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(cart));
+        CartItem item = cartService.addItemToCart(cart, request.getProductId(), request.getQuantity());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapItemToDTO(item));
     }
 
     @PutMapping("/items/{cartItemId}")
@@ -76,11 +61,6 @@ public class CartController {
     @DeleteMapping("/items/{cartItemId}")
     public ResponseEntity<Void> removeItemFromCart(@PathVariable Long cartItemId) {
         Long userId = getCurrentUserId();
-        if (userId == null) {
-            // Guest users can't remove items by ID without proper session management
-            // For now, just return success
-            return ResponseEntity.noContent().build();
-        }
         User user = authService.getUserById(userId);
         Cart cart = cartService.getOrCreateCart(user);
 
@@ -91,10 +71,6 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<Void> clearCart() {
         Long userId = getCurrentUserId();
-        if (userId == null) {
-            // Guest users can't clear cart without proper session management
-            return ResponseEntity.noContent().build();
-        }
         User user = authService.getUserById(userId);
         Cart cart = cartService.getOrCreateCart(user);
 
@@ -112,7 +88,6 @@ public class CartController {
         return dto;
     }
 
-
     private CartItemDTO mapItemToDTO(CartItem item) {
         CartItemDTO dto = new CartItemDTO();
         dto.setId(item.getId());
@@ -125,14 +100,7 @@ public class CartController {
     }
 
     private Long getCurrentUserId() {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-                return jwtAuth.getUserId();
-            }
-        } catch (Exception e) {
-            // Ignore any authentication errors
-        }
-        return null;
+        JwtAuthenticationToken auth = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getUserId() : null;
     }
 }
