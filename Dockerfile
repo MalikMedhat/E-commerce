@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 FROM node:20-alpine AS base
+=======
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+>>>>>>> 6dd17f15f4cccc93dcb8720e0eed1995da1fc061
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -6,6 +14,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # ── Build stage ──
 FROM base AS builder
 WORKDIR /app
+<<<<<<< HEAD
 
 # Copy workspace config
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
@@ -40,3 +49,8 @@ COPY --from=builder /app/ECommerce-Builder/artifacts/api-server/package.json ./a
 EXPOSE 8088
 
 CMD ["node", "--enable-source-maps", "./api-server/dist/index.mjs"]
+=======
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8088
+ENTRYPOINT ["java", "-jar", "app.jar"]
+>>>>>>> 6dd17f15f4cccc93dcb8720e0eed1995da1fc061
