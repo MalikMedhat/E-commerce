@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version> <!-- Reverted to original parent version -->
+        <version>3.2.5</version> <!-- Corrected to a valid Spring Boot 3.x parent version -->
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.ecom</groupId>
@@ -36,8 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-            <version>3.2.5</version> <!-- Added explicit version as it was missing -->
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
