@@ -113,10 +113,10 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            : isErrorFeatured ? (
+            : isErrorFeatured || !Array.isArray(featuredProducts) ? (
               <p className="col-span-4 text-center text-muted-foreground py-8">Unable to load products.</p>
             ) : (
-              featuredProducts?.map((product, i) => (
+              featuredProducts.map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))
             )}
@@ -135,9 +135,9 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {isLoadingCategories
             ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
-            : isErrorCategories ? (
+            : isErrorCategories || !Array.isArray(categories) ? (
               <p className="col-span-2 md:col-span-4 text-center text-muted-foreground py-8">Unable to load categories.</p>
-            ) : categories?.slice(0, 4).map((cat, i) => (
+            ) : categories.slice(0, 4).map((cat, i) => (
                 <Link
                   key={cat.id}
                   href={`/products?categoryId=${cat.id}`}
