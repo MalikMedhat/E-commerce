@@ -1,4 +1,5 @@
-import { useGetFeaturedProducts, useListCategories } from "@workspace/api-client-react";
+﻿import { useGetFeaturedProducts, useListCategories } from "@workspace/api-client-react";
+import type { Product, Category } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/ProductCard";
 import { Link } from "wouter";
 import { ArrowUpRight, Sparkles, Zap, Shield, Truck } from "lucide-react";
@@ -39,7 +40,7 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full">
 
-      {/* ── Hero ── */}
+      {/* â”€â”€ Hero â”€â”€ */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden pt-16">
         {/* Ambient glows */}
         <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
@@ -58,7 +59,7 @@ export default function Home() {
               Your Way.
             </h1>
             <p className="text-lg text-muted-foreground mb-10 max-w-md leading-relaxed">
-              Curated drops of the most forward-thinking gear on the market. No noise — just signal.
+              Curated drops of the most forward-thinking gear on the market. No noise â€” just signal.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/products">
@@ -75,7 +76,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right — image collage */}
+          {/* Right â€” image collage */}
           <div className="hidden md:grid grid-cols-2 gap-3">
             {[
               "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
@@ -91,7 +92,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Trust strip ── */}
+      {/* â”€â”€ Trust strip â”€â”€ */}
       <div className="border-y border-border py-4">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-wrap justify-center md:justify-between items-center gap-6 text-xs font-semibold tracking-widest uppercase text-muted-foreground">
@@ -110,7 +111,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── Featured Products ── */}
+      {/* â”€â”€ Featured Products â”€â”€ */}
       <section className="py-20 container px-4 md:px-6 mx-auto">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -137,14 +138,14 @@ export default function Home() {
             : isErrorFeatured || featuredProducts.length === 0 ? (
               <p className="col-span-4 text-center text-muted-foreground py-8">Unable to load products.</p>
             ) : (
-              featuredProducts.map((product, i) => (
+              featuredProducts.map((product: Product, i: number) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))
             )}
         </div>
       </section>
 
-      {/* ── Category Grid ── */}
+      {/* â”€â”€ Category Grid â”€â”€ */}
       <section className="pb-20 container px-4 md:px-6 mx-auto">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -158,7 +159,7 @@ export default function Home() {
             ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
             : isErrorCategories || categories.length === 0 ? (
               <p className="col-span-2 md:col-span-4 text-center text-muted-foreground py-8">Unable to load categories.</p>
-            ) : categories.slice(0, 4).map((cat, i) => (
+            ) : categories.slice(0, 4).map((cat: Category, i: number) => (
                 <Link
                   key={cat.id}
                   href={`/products?categoryId=${cat.id}`}
