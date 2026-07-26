@@ -1,8 +1,8 @@
 package com.ecom.config;
 
-
 import com.ecom.model.Category;
 import com.ecom.model.Product;
+import com.ecom.repository.CartItemRepository; // 1. Import CartItemRepository (adjust package if needed)
 import com.ecom.repository.CategoryRepository;
 import com.ecom.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -12,17 +12,26 @@ import java.util.Arrays;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final CartItemRepository cartItemRepository; // 2. Add repository field
 
-    public DataSeeder(ProductRepository productRepository, CategoryRepository categoryRepository) {
+
+    public DataSeeder(ProductRepository productRepository,
+                      CategoryRepository categoryRepository,
+                      CartItemRepository cartItemRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.cartItemRepository = cartItemRepository;
     }
-
 
     @Override
     public void run(String... args) throws Exception {
+        // 4. Delete child records referencing products FIRST
+        cartItemRepository.deleteAll();
+
+        // Safe to clear parents now
         productRepository.deleteAll();
         categoryRepository.deleteAll();
 
@@ -33,6 +42,7 @@ public class DataSeeder implements CommandLineRunner {
         clothing.setName("Clothing");
 
         categoryRepository.saveAll(Arrays.asList(electronics, clothing));
+
         Product phone = new Product();
         phone.setName("SmartPhone");
         phone.setDescription("Latest model with advanced features");
@@ -61,7 +71,7 @@ public class DataSeeder implements CommandLineRunner {
         blender.setPrice(79.99);
         blender.setCategory(electronics);
 
-// ── 5 New Products ──
+        // ── 5 New Products ──
 
         Product headphones = new Product();
         headphones.setName("Wireless Headphones");

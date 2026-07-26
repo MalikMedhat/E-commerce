@@ -42,48 +42,28 @@ public class CartController {
         return ResponseEntity.ok(mapToDTO(cart));
     }
 
-//    @PostMapping("/items")
-//    public ResponseEntity<CartItemDTO> addItemToCart(@RequestBody AddItemToCartDTO request) {
-//        Long userId = getCurrentUserId();
-//        User user = authService.getUserById(userId);
-//        Cart cart = cartService.getOrCreateCart(user);
-//
-//        CartItem item = cartService.addItemToCart(cart, request.getProductId(), request.getQuantity());
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body(mapItemToDTO(item));
-//    }
-@PostMapping("/items")
-public ResponseEntity<CartItemDTO> addItemToCart(@RequestBody AddItemToCartDTO request) {
+    @PostMapping("/items")
+    public ResponseEntity<CartDTO> addItemToCart(@RequestBody AddItemToCartDTO request) {
+        Long userId = getCurrentUserId();
 
-    System.out.println("INSIDE CART CONTROLLER");
-
-    Long userId = getCurrentUserId();
-    System.out.println("USER ID = " + userId);
-
-    if (userId == null) {
-        // For guest users, create a temporary user or use session-based cart
-        // For now, we'll create a guest user
-        User guestUser = authService.createGuestUser();
-        Cart cart = cartService.getOrCreateCart(guestUser);
+        User user;
+        if (userId == null) {
+            // For guest users, create a temporary user or use session-based cart
+            // For now, we'll create a guest user
+            user = authService.createGuestUser();
+        } else {
+            user = authService.getUserById(userId);
+        }
         
-        CartItem item = cartService.addItemToCart(
+        Cart cart = cartService.getOrCreateCart(user);
+        
+        cartService.addItemToCart(
                 cart,
                 request.getProductId(),
                 request.getQuantity());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapItemToDTO(item));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(cart));
     }
-
-    User user = authService.getUserById(userId);
-    Cart cart = cartService.getOrCreateCart(user);
-
-    CartItem item = cartService.addItemToCart(
-            cart,
-            request.getProductId(),
-            request.getQuantity());
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(mapItemToDTO(item));
-}
 
     @PutMapping("/items/{cartItemId}")
     public ResponseEntity<CartItemDTO> updateCartItem(
