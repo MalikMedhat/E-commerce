@@ -3,6 +3,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Link } from "wouter";
 import { ArrowUpRight, Sparkles, Zap, Shield, Truck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
 
 const CATEGORY_IMAGES = [
   "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000",
@@ -12,8 +13,28 @@ const CATEGORY_IMAGES = [
 ];
 
 export default function Home() {
-  const { data: featuredProducts, isLoading: isLoadingFeatured, isError: isErrorFeatured } = useGetFeaturedProducts();
-  const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useListCategories();
+  const { data: featuredProductsResult, isLoading: isLoadingFeatured, isError: isErrorFeatured } = useGetFeaturedProducts();
+  const { data: categoriesResult, isLoading: isLoadingCategories, isError: isErrorCategories } = useListCategories();
+
+  const featuredProducts = React.useMemo(() => {
+    if (!featuredProductsResult) return [];
+    if (Array.isArray(featuredProductsResult)) return featuredProductsResult;
+    // @ts-expect-error We are safely checking for the nested property
+    if (Array.isArray(featuredProductsResult.products)) return featuredProductsResult.products;
+    // @ts-expect-error We are safely checking for the nested property
+    if (Array.isArray(featuredProductsResult.data)) return featuredProductsResult.data;
+    return [];
+  }, [featuredProductsResult]);
+
+  const categories = React.useMemo(() => {
+    if (!categoriesResult) return [];
+    if (Array.isArray(categoriesResult)) return categoriesResult;
+     // @ts-expect-error We are safely checking for the nested property
+    if (Array.isArray(categoriesResult.categories)) return categoriesResult.categories;
+    // @ts-expect-error We are safely checking for the nested property
+    if (Array.isArray(categoriesResult.data)) return categoriesResult.data;
+    return [];
+  }, [categoriesResult]);
 
   return (
     <div className="flex flex-col w-full">
@@ -113,7 +134,7 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            : isErrorFeatured || !Array.isArray(featuredProducts) ? (
+            : isErrorFeatured || featuredProducts.length === 0 ? (
               <p className="col-span-4 text-center text-muted-foreground py-8">Unable to load products.</p>
             ) : (
               featuredProducts.map((product, i) => (
@@ -135,7 +156,7 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {isLoadingCategories
             ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
-            : isErrorCategories || !Array.isArray(categories) ? (
+            : isErrorCategories || categories.length === 0 ? (
               <p className="col-span-2 md:col-span-4 text-center text-muted-foreground py-8">Unable to load categories.</p>
             ) : categories.slice(0, 4).map((cat, i) => (
                 <Link
