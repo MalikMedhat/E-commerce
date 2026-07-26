@@ -1,13 +1,9 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 
-const rawPort = process.env["PORT"];
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
+// Provide a sensible default so the server starts even when PORT
+// is not explicitly set (e.g. in some deployment environments).
+const rawPort = process.env["PORT"] || "8088";
 
 const port = Number(rawPort);
 

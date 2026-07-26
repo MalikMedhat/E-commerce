@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "ECommerce-Builder/artifacts/shop/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/public"
+      }
+    },
+    {
+      "src": "ECommerce-Builder/artifacts/api-server/src/vercel.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "ECommerce-Builder/lib/**",
+          "ECommerce-Builder/artifacts/api-server/src/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/ECommerce-Builder/artifacts/api-server/src/vercel.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/ECommerce-Builder/artifacts/shop/dist/public/$1"
+    }
+  ]
+}

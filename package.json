@@ -2,9 +2,9 @@
   "name": "ecommerce-root",
   "private": true,
   "scripts": {
-    "dev": "npm --prefix ecommerce run dev",
-    "build": "npm --prefix ecommerce run build",
-    "start": "npm --prefix ecommerce run start",
-    "install:frontend": "npm --prefix ecommerce install"
+    "dev": "npm --prefix ECommerce-Builder run dev",
+    "build": "npm --prefix ECommerce-Builder run build",
+    "start": "npm --prefix ECommerce-Builder run start",
+    "install:frontend": "npm --prefix ECommerce-Builder install"
   }
 }
