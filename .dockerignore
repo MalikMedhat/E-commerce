@@ -1,0 +1,10 @@
+.git
+.idea
+.mvn
+target
+BOOT-INF
+node_modules
+ECommerce-Builder
+ecommerce
+.env
+.env.local

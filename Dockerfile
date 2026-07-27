@@ -1,56 +1,20 @@
-<<<<<<< HEAD
-FROM node:20-alpine AS base
-=======
+# Build the Spring Boot backend.
 FROM maven:3.9-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY pom.xml .
+
+WORKDIR /workspace
+
+COPY pom.xml ./
 COPY src ./src
-RUN mvn clean package -DskipTests
->>>>>>> 6dd17f15f4cccc93dcb8720e0eed1995da1fc061
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN mvn --batch-mode --no-transfer-progress clean package -DskipTests
 
-# ── Build stage ──
-FROM base AS builder
-WORKDIR /app
-<<<<<<< HEAD
+# Run the packaged Spring Boot application on a smaller JRE image.
+FROM eclipse-temurin:21-jre-alpine
 
-# Copy workspace config
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
-COPY ECommerce-Builder/package.json ECommerce-Builder/pnpm-lock.yaml ECommerce-Builder/pnpm-workspace.yaml ECommerce-Builder/tsconfig.base.json ./ECommerce-Builder/
-
-# Copy all workspace packages
-COPY ECommerce-Builder/lib ./ECommerce-Builder/lib
-COPY ECommerce-Builder/artifacts/api-server ./ECommerce-Builder/artifacts/api-server
-COPY ECommerce-Builder/artifacts/shop ./ECommerce-Builder/artifacts/shop
-
-# Install dependencies
-RUN cd ECommerce-Builder && pnpm install --frozen-lockfile
-
-# Build the API server
-RUN cd ECommerce-Builder/artifacts/api-server && pnpm run build
-
-# Build the frontend
-RUN cd ECommerce-Builder/artifacts/shop && pnpm run build
-
-# ── Production stage ──
-FROM base AS runner
 WORKDIR /app
 
-# Copy built artifacts
-COPY --from=builder /app/ECommerce-Builder/artifacts/api-server/dist ./api-server/dist
-COPY --from=builder /app/ECommerce-Builder/artifacts/shop/dist ./shop/dist
-COPY --from=builder /app/ECommerce-Builder/node_modules ./node_modules
-
-# Copy package.json for the API server
-COPY --from=builder /app/ECommerce-Builder/artifacts/api-server/package.json ./api-server/package.json
+COPY --from=build /workspace/target/*.jar app.jar
 
 EXPOSE 8088
 
-CMD ["node", "--enable-source-maps", "./api-server/dist/index.mjs"]
-=======
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8088
-ENTRYPOINT ["java", "-jar", "app.jar"]
->>>>>>> 6dd17f15f4cccc93dcb8720e0eed1995da1fc061
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
