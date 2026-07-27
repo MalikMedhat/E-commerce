@@ -1,5 +1,5 @@
-import app from "./app";
-import { logger } from "./lib/logger";
+import app from "./app.js";
+import { logger } from "./lib/logger.js";
 
 // Provide a sensible default so the server starts even when PORT
 // is not explicitly set (e.g. in some deployment environments).
