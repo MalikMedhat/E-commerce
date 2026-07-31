@@ -20,10 +20,8 @@ export default function Home() {
   const featuredProducts = React.useMemo(() => {
     if (!featuredProductsResult) return [];
     if (Array.isArray(featuredProductsResult)) return featuredProductsResult;
-    // @ts-expect-error We are safely checking for the nested property
-    if (Array.isArray(featuredProductsResult.products)) return featuredProductsResult.products;
-    // @ts-expect-error We are safely checking for the nested property
-    if (Array.isArray(featuredProductsResult.data)) return featuredProductsResult.data;
+    if (Array.isArray((featuredProductsResult as any).products)) return (featuredProductsResult as any).products;
+    if (Array.isArray((featuredProductsResult as any).data)) return (featuredProductsResult as any).data;
     return [];
   }, [featuredProductsResult]);
 
@@ -135,8 +133,10 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            : isErrorFeatured || featuredProducts.length === 0 ? (
+            : isErrorFeatured ? (
               <p className="col-span-4 text-center text-muted-foreground py-8">Unable to load products.</p>
+            ) : featuredProducts.length === 0 ? (
+              <p className="col-span-4 text-center text-muted-foreground py-8">No products available at the moment.</p>
             ) : (
               featuredProducts.map((product: Product, i: number) => (
                 <ProductCard key={product.id} product={product} index={i} />
@@ -157,8 +157,10 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {isLoadingCategories
             ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
-            : isErrorCategories || categories.length === 0 ? (
+            : isErrorCategories ? (
               <p className="col-span-2 md:col-span-4 text-center text-muted-foreground py-8">Unable to load categories.</p>
+            ) : categories.length === 0 ? (
+              <p className="col-span-2 md:col-span-4 text-center text-muted-foreground py-8">No categories available at the moment.</p>
             ) : categories.slice(0, 4).map((cat: Category, i: number) => (
                 <Link
                   key={cat.id}
@@ -181,7 +183,7 @@ export default function Home() {
                     </p>
                   </div>
                 </Link>
-              ))}
+              )) : null}
         </div>
       </section>
 
