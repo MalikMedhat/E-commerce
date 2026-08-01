@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Footer } from './components/Footer';
 import { setupApiClient } from './lib/api-setup';
 import { useAuthStore } from './store/authStore';
@@ -7,10 +6,7 @@ setupApiClient();
 
 function App() {
   const hydrateAuth = useAuthStore((state) => state.hydrate);
-
-  useEffect(() => {
-    hydrateAuth();
-  }, [hydrateAuth]);
+  hydrateAuth();
 
   return (
     <div className="min-h-screen flex flex-col">
