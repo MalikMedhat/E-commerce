@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
+    "composite": true,
+    "declaration": true,
+    "noEmit": false,
     "jsx": "preserve",
     "lib": [
       "esnext",
@@ -10,7 +12,8 @@
     ],
     "moduleResolution": "bundler",
     "types": [
-      "node"
+      "node",
+      "vite/client"
     ],
     "paths": {}
   },
