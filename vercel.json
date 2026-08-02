@@ -1,5 +1,10 @@
 {
   "buildCommand": "cd ECommerce-Builder && pnpm install && pnpm run build",
   "outputDirectory": "ECommerce-Builder/artifacts/shop/dist/public",
-  "framework": null
+  "framework": null,
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }

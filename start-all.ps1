@@ -35,13 +35,13 @@ function Start-Backend {
 function Start-Frontend {
     Write-Host "► Starting React Frontend on port 3000..." -ForegroundColor Cyan
 
-    $shopDir = "C:\Users\Malik\Downloads\ECommerce-Builder\ECommerce-Builder\artifacts\shop"
+    $shopDir = ".\ECommerce-Builder\artifacts\shop"
 
     if (!(Test-Path $shopDir)) {
         Write-Host "✗ Shop directory not found at: $shopDir" -ForegroundColor Red
         Write-Host "Update the path in this script or run manually:"
-        Write-Host "  cd artifacts/shop"
-        Write-Host "  `$env:PORT='3000'; `$env:BASE_PATH='/'; pnpm exec vite"
+        Write-Host "  cd ECommerce-Builder/artifacts/shop"
+        Write-Host "  `$env:PORT='3000'; `$env:BASE_PATH='/'; pnpm run dev"
         return $false
     }
 
@@ -49,7 +49,7 @@ function Start-Frontend {
 
     # Start frontend with environment variables
     $frontend = Start-Process -FilePath "cmd.exe" `
-        -ArgumentList "/c", "set PORT=3000 && set BASE_PATH=/ && pnpm exec vite --config vite.config.ts --host 0.0.0.0" `
+        -ArgumentList "/c", "set PORT=3000 && set BASE_PATH=/ && pnpm run dev" `
         -PassThru `
         -NoNewWindow
 

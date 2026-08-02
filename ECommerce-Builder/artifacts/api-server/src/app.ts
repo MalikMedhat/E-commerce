@@ -1,12 +1,11 @@
-import type { Express, Request, Response, NextFunction } from "express";
-import express from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import router from "./routes/index.js";
 import { logger } from "./lib/logger.js";
 
-const app: Express = express();
+const app = express();
 
 app.use(
   pinoHttp({
