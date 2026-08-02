@@ -85,6 +85,22 @@ app.get("/api/cart", (req, res) => {
   res.json({ items: [], total: 0 });
 });
 
+app.get("/api/cart/items", (req, res) => {
+  res.json([]);
+});
+
+app.post("/api/cart/items", (req, res) => {
+  res.json({ success: true });
+});
+
+app.put("/api/cart/items/:id", (req, res) => {
+  res.json({ success: true });
+});
+
+app.delete("/api/cart/items/:id", (req, res) => {
+  res.json({ success: true });
+});
+
 const PORT = process.env.PORT || 8088;
 app.listen(PORT, () => {
   console.log(`Mock API server running on port ${PORT}`);
