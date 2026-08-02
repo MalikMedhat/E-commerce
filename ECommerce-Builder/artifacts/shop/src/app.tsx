@@ -9,12 +9,19 @@ function App() {
   hydrateAuth();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <main className="flex-1 p-6">
-        <h1 className="text-2xl font-semibold">E-commerce Builder</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The app is running with the minimal frontend shell for this workspace.
-        </p>
+        <div className="mx-auto flex max-w-5xl flex-col gap-6">
+          <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              E-commerce storefront
+            </p>
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight">Welcome to the storefront</h1>
+            <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+              This workspace is now rendering the existing storefront entry component through the app entrypoint.
+            </p>
+          </section>
+        </div>
       </main>
       <Footer />
     </div>
