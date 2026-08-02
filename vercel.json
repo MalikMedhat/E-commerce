@@ -1,1 +1,5 @@
-{"buildCommand":"cd ECommerce-Builder/artifacts/shop && npm install && npm run build","outputDirectory":"ECommerce-Builder/artifacts/shop/dist/public","framework":null}
+{
+  "buildCommand": "cd ECommerce-Builder && pnpm install && pnpm run build",
+  "outputDirectory": "ECommerce-Builder/artifacts/shop/dist/public",
+  "framework": null
+}
