@@ -2,9 +2,9 @@ import { setAuthTokenGetter, setBaseUrl } from '@workspace/api-client-react';
 import { useAuthStore } from '../store/authStore';
 
 export function setupApiClient() {
-  // Use the deployed Vercel function by default. A custom backend URL can still
-  // be supplied through VITE_API_BASE_URL for local or Docker deployments.
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || '';
+  // For local development, use the local mock API server
+  // For production, this will use the deployed Vercel function
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:8088';
 
   setBaseUrl(apiBaseUrl);
 
