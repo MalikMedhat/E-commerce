@@ -74,10 +74,22 @@ app.get("/api/products", (req, res) => {
   const categoryId = Number(req.query.categoryId) || undefined;
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 12;
-  const filtered = products.filter((item) =>
+  const sort = (req.query.sort as string) || "newest";
+  
+  let filtered = products.filter((item) =>
     (!categoryId || item.category?.id === categoryId) &&
     (!search || `${item.name} ${item.description}`.toLowerCase().includes(search)),
   );
+  
+  // Handle sorting
+  if (sort === "newest") {
+    filtered = [...filtered].reverse();
+  } else if (sort === "price-asc") {
+    filtered = [...filtered].sort((a, b) => a.price - b.price);
+  } else if (sort === "price-desc") {
+    filtered = [...filtered].sort((a, b) => b.price - a.price);
+  }
+  
   res.json({ products: filtered.slice((page - 1) * limit, page * limit), total: filtered.length, page, limit });
 });
 
