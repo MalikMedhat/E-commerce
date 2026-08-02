@@ -15,6 +15,13 @@ interface Product {
   category: Category | undefined;
 }
 
+interface CartItem {
+  id: number;
+  productId: number;
+  quantity: number;
+  product: Product;
+}
+
 const categories: Category[] = [
   { id: 1, name: "Furniture" },
   { id: 2, name: "Object" },
@@ -40,6 +47,10 @@ const products: Product[] = [
   imageUrl: imageUrl as string,
   category: categories.find((category) => category.id === categoryId),
 }));
+
+// In-memory cart storage
+let cartItems: CartItem[] = [];
+let cartIdCounter = 1;
 
 const app = express();
 app.use(cors());
@@ -94,23 +105,89 @@ app.get("/api/products", (req, res) => {
 });
 
 app.get("/api/cart", (req, res) => {
-  res.json({ items: [], total: 0 });
+  const total = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  res.json({ items: cartItems, total });
 });
 
 app.get("/api/cart/items", (req, res) => {
-  res.json([]);
+  res.json(cartItems);
 });
 
 app.post("/api/cart/items", (req, res) => {
-  res.json({ success: true });
+  const { productId, quantity } = req.body;
+  const product = products.find((p) => p.id === productId);
+  
+  if (!product) {
+    return res.status(404).json({ error: "Product not found" });
+  }
+  
+  const existingItem = cartItems.find((item) => item.productId === productId);
+  
+  if (existingItem) {
+    existingItem.quantity += quantity || 1;
+  } else {
+    const newItem: CartItem = {
+      id: cartIdCounter++,
+      productId,
+      quantity: quantity || 1,
+      product,
+    };
+    cartItems.push(newItem);
+  }
+  
+  res.json(cartItems);
 });
 
 app.put("/api/cart/items/:id", (req, res) => {
-  res.json({ success: true });
+  const id = Number(req.params.id);
+  const { quantity } = req.body;
+  
+  const item = cartItems.find((item) => item.id === id);
+  
+  if (!item) {
+    return res.status(404).json({ error: "Cart item not found" });
+  }
+  
+  item.quantity = quantity;
+  res.json(cartItems);
 });
 
 app.delete("/api/cart/items/:id", (req, res) => {
-  res.json({ success: true });
+  const id = Number(req.params.id);
+  cartItems = cartItems.filter((item) => item.id !== id);
+  res.json(cartItems);
+});
+
+// Payment endpoints
+app.post("/api/checkout/create-payment-intent", (req, res) => {
+  const { amount } = req.body;
+  res.json({
+    clientSecret: "mock_client_secret_" + Date.now(),
+    amount: amount || 0,
+  });
+});
+
+app.post("/api/checkout/confirm-payment", (req, res) => {
+  const { paymentIntentId } = req.body;
+  res.json({
+    success: true,
+    orderId: "ORD_" + Date.now(),
+    paymentIntentId,
+  });
+});
+
+app.get("/api/orders", (req, res) => {
+  res.json([]);
+});
+
+app.get("/api/orders/:id", (req, res) => {
+  res.json({
+    id: req.params.id,
+    items: cartItems,
+    total: cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
+    status: "completed",
+    createdAt: new Date().toISOString(),
+  });
 });
 
 const PORT = process.env.PORT || 8088;
