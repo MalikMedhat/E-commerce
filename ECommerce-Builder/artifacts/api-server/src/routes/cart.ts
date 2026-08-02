@@ -1,4 +1,4 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type Request, type Response } from "express";
 import { eq, and } from "drizzle-orm";
 import { db, cartsTable, cartItemsTable, productsTable } from "@workspace/db";
 import {
@@ -8,7 +8,7 @@ import {
   RemoveCartItemParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 async function getOrCreateCart(userId: number) {
   let [cart] = await db.select().from(cartsTable).where(eq(cartsTable.userId, userId));

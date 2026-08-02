@@ -1,9 +1,9 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
 import { db, ordersTable } from "@workspace/db";
 import { CreatePaymentIntentBody, ConfirmPaymentBody } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 // Create a Stripe payment intent for an order
 router.post("/payments/create-intent", async (req: Request, res: Response): Promise<void> => {

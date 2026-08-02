@@ -27,11 +27,10 @@ export default function Home() {
 
   const categories = React.useMemo(() => {
     if (!categoriesResult) return [];
-    if (Array.isArray(categoriesResult)) return categoriesResult;
-     // @ts-expect-error We are safely checking for the nested property
-    if (Array.isArray(categoriesResult.categories)) return categoriesResult.categories;
-    // @ts-expect-error We are safely checking for the nested property
-    if (Array.isArray(categoriesResult.data)) return categoriesResult.data;
+    if (Array.isArray(categoriesResult)) return categoriesResult as Category[];
+    const result = categoriesResult as any;
+    if (Array.isArray(result.categories)) return result.categories;
+    if (Array.isArray(result.data)) return result.data;
     return [];
   }, [categoriesResult]);
 
@@ -173,7 +172,6 @@ export default function Home() {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
-                  {/* Cyan glow on hover */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ boxShadow: "inset 0 0 0 1px rgba(0,229,255,0.4)" }} />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -183,7 +181,7 @@ export default function Home() {
                     </p>
                   </div>
                 </Link>
-              )) : null}
+              ))}
         </div>
       </section>
 

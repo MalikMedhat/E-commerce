@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import healthRouter from "./health.js";
 import authRouter from "./auth.js";
 import categoriesRouter from "./categories.js";
@@ -9,7 +9,7 @@ import storeRouter from "./store.js";
 import paymentsRouter from "./payments.js";
 import { requireAuth } from "../middlewares/auth.js";
 
-const router: IRouter = Router();
+const router = Router();
 
 // Public routes (no auth required)
 router.use(healthRouter);

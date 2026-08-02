@@ -1,3 +1,4 @@
+import type { Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -5,7 +6,7 @@ import pinoHttp from "pino-http";
 import router from "./routes/index.js";
 import { logger } from "./lib/logger.js";
 
-const app = express();
+const app: Express = express();
 
 app.use(
   pinoHttp({
@@ -34,7 +35,7 @@ app.use(cookieParser());
 app.use("/api", router);
 
 // Global error handler
-app.use((err, _req, res, _next) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error({ err }, "Unhandled error");
   res.status(500).json({ error: "Internal server error" });
 });

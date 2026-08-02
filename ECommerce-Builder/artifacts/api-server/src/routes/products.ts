@@ -1,4 +1,4 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type Request, type Response } from "express";
 import { eq, ilike, and, asc, desc, count, sql } from "drizzle-orm";
 import { db, productsTable, categoriesTable } from "@workspace/db";
 import {
@@ -10,7 +10,7 @@ import {
   ListProductsQueryParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 function normalizeProduct(row: any) {
   return {

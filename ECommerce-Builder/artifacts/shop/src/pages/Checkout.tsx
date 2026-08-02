@@ -12,8 +12,6 @@ export default function Checkout() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
   const [shippingAddress, setShippingAddress] = useState("");
-  const [billingAddress, setBillingAddress] = useState("");
-  const [useShippingForBilling, setUseShippingForBilling] = useState(true);
 
   const { data: cart, isLoading: isCartLoading, isError: isCartError } = useGetCart({
     query: { queryKey: ['/api/cart'] }
@@ -143,30 +141,13 @@ export default function Checkout() {
 
             {step === 3 && (
               <div className="bg-background border border-border p-6 md:p-8 animate-fade-in-up">
-                <h2 className="text-xl font-display font-semibold mb-6">Billing Address</h2>
+                <h2 className="text-xl font-display font-semibold mb-6">Confirm Order</h2>
 
                 <div className="mb-8 space-y-6">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 accent-primary text-primary rounded-none border-border"
-                      checked={useShippingForBilling}
-                      onChange={(e) => setUseShippingForBilling(e.target.checked)}
-                    />
-                    <span className="text-sm font-medium">Same as shipping address</span>
-                  </label>
-
-                  {!useShippingForBilling && (
-                    <div className="space-y-2 animate-fade-in-up">
-                      <Label className="text-xs uppercase tracking-widest text-muted-foreground">Billing Address</Label>
-                      <textarea
-                        className="w-full min-h-[120px] p-3 border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-transparent resize-none"
-                        placeholder="Enter your billing address..."
-                        value={billingAddress}
-                        onChange={(e) => setBillingAddress(e.target.value)}
-                      />
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label className="text-xs uppercase tracking-widest text-muted-foreground">Shipping Address</Label>
+                    <p className="text-sm">{shippingAddress}</p>
+                  </div>
                 </div>
 
                 <div className="flex gap-4">

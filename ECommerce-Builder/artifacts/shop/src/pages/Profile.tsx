@@ -8,7 +8,7 @@ export default function Profile() {
   const { logout } = useAuthStore();
   const [, setLocation] = useLocation();
 
-  const { data: user, isLoading, isError } = useGetMe({
+  const { data: user, isLoading } = useGetMe({
     query: { queryKey: ['me'] }
   });
 
@@ -38,8 +38,6 @@ export default function Profile() {
                   <div className="h-8 w-48 bg-secondary animate-pulse mb-3 mx-auto md:mx-0" />
                   <div className="h-5 w-32 bg-secondary animate-pulse mx-auto md:mx-0" />
                 </>
-              ) : isError ? (
-                <p className="text-muted-foreground">Unable to load profile. Please try again.</p>
               ) : (
                 <>
                   <h2 className="text-2xl font-bold font-display tracking-tight mb-2">

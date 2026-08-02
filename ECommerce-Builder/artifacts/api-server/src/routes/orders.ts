@@ -1,9 +1,9 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type Request, type Response } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db, ordersTable, orderItemsTable, cartsTable, cartItemsTable, productsTable } from "@workspace/db";
 import { GetOrderParams, CancelOrderParams, CheckoutBody } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 async function buildOrderResponse(order: typeof ordersTable.$inferSelect) {
   const items = await db

@@ -21,7 +21,7 @@ export default function ProductDetail() {
   
   const [quantity, setQuantity] = useState(1);
 
-  const { data: product, isLoading, error } = useGetProduct(productId, {
+  const { data: product, isLoading } = useGetProduct(productId, {
     query: { enabled: !!productId, queryKey: ['product', productId] }
   });
 
@@ -54,7 +54,7 @@ export default function ProductDetail() {
     );
   };
 
-  if (error) {
+  if (!product && !isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center pt-20">
         <h2 className="text-2xl font-display font-bold mb-4">Product Not Found</h2>

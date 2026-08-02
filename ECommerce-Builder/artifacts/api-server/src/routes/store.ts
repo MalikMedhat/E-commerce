@@ -1,8 +1,8 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type Request, type Response } from "express";
 import { desc, count, eq } from "drizzle-orm";
 import { db, productsTable, categoriesTable, ordersTable, orderItemsTable } from "@workspace/db";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.get("/store/summary", async (req: Request, res: Response): Promise<void> => {
   const userId = (req as any).userId as number;
