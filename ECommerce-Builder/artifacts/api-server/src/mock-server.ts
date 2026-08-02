@@ -22,6 +22,14 @@ interface CartItem {
   product: Product;
 }
 
+interface User {
+  id: number;
+  email: string;
+  password: string;
+  name: string;
+  token: string;
+}
+
 const categories: Category[] = [
   { id: 1, name: "Furniture" },
   { id: 2, name: "Object" },
@@ -52,12 +60,91 @@ const products: Product[] = [
 let cartItems: CartItem[] = [];
 let cartIdCounter = 1;
 
+// In-memory user storage
+let users: User[] = [];
+let userIdCounter = 1;
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+// Authentication endpoints
+app.post("/api/auth/register", (req, res) => {
+  const { email, password, name } = req.body;
+  
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  
+  if (users.find((u) => u.email === email)) {
+    return res.status(400).json({ error: "User already exists" });
+  }
+  
+  const newUser: User = {
+    id: userIdCounter++,
+    email,
+    password, // In production, this should be hashed
+    name,
+    token: "mock_token_" + Date.now() + "_" + userIdCounter,
+  };
+  
+  users.push(newUser);
+  
+  res.json({
+    user: {
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+    },
+    token: newUser.token,
+  });
+});
+
+app.post("/api/auth/login", (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: "Missing email or password" });
+  }
+  
+  const user = users.find((u) => u.email === email && u.password === password);
+  
+  if (!user) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+  
+  res.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    },
+    token: user.token,
+  });
+});
+
+app.get("/api/auth/me", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
+  res.json({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+  });
 });
 
 app.get("/api/categories", (req, res) => {
