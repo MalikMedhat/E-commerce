@@ -68,23 +68,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (req, res): void => {
   res.json({ status: "ok" });
 });
 
 // Authentication endpoints
-app.post("/api/auth/register", (req, res) => {
+app.post("/api/auth/register", (req, res): void => {
   console.log("Register request body:", req.body);
   const { email, password, name } = req.body;
   
   if (!email || !password || !name) {
     console.log("Missing required fields:", { email: !!email, password: !!password, name: !!name });
-    return res.status(400).json({ error: "Missing required fields" });
+    res.status(400).json({ error: "Missing required fields" });
+    return;
   }
   
   if (users.find((u) => u.email === email)) {
     console.log("User already exists:", email);
-    return res.status(400).json({ error: "User already exists" });
+    res.status(400).json({ error: "User already exists" });
+    return;
   }
   
   const newUser: User = {
@@ -108,20 +110,22 @@ app.post("/api/auth/register", (req, res) => {
   });
 });
 
-app.post("/api/auth/login", (req, res) => {
+app.post("/api/auth/login", (req, res): void => {
   console.log("Login request body:", req.body);
   const { email, password } = req.body;
   
   if (!email || !password) {
     console.log("Missing email or password:", { email: !!email, password: !!password });
-    return res.status(400).json({ error: "Missing email or password" });
+    res.status(400).json({ error: "Missing email or password" });
+    return;
   }
   
   const user = users.find((u) => u.email === email && u.password === password);
   
   if (!user) {
     console.log("Invalid credentials for:", email);
-    return res.status(401).json({ error: "Invalid credentials" });
+    res.status(401).json({ error: "Invalid credentials" });
+    return;
   }
   
   console.log("Login successful:", user.email);
@@ -135,17 +139,19 @@ app.post("/api/auth/login", (req, res) => {
   });
 });
 
-app.get("/api/auth/me", (req, res) => {
+app.get("/api/auth/me", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   res.json({
@@ -155,33 +161,39 @@ app.get("/api/auth/me", (req, res) => {
   });
 });
 
-app.get("/api/categories", (req, res) => {
+app.get("/api/categories", (req, res): void => {
   res.json(categories);
 });
 
-app.get("/api/products/featured", (req, res) => {
+app.get("/api/products/featured", (req, res): void => {
   res.json(products.slice(0, 4));
 });
 
-app.get("/api/products/:id", (req, res) => {
+app.get("/api/products/:id", (req, res): void => {
   const product = products.find((item) => item.id === Number(req.params.id));
-  if (!product) return res.status(404).json({ error: "Product not found" });
+  if (!product) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
   res.json(product);
 });
 
-app.get("/api/products/category/:categoryId", (req, res) => {
+app.get("/api/products/category/:categoryId", (req, res): void => {
   const categoryId = Number(req.params.categoryId);
   const categoryProducts = products.filter((item) => item.category?.id === categoryId);
   res.json(categoryProducts);
 });
 
-app.get("/api/products/:id/related", (req, res) => {
+app.get("/api/products/:id/related", (req, res): void => {
   const product = products.find((item) => item.id === Number(req.params.id));
-  if (!product) return res.status(404).json({ error: "Product not found" });
+  if (!product) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
   res.json(products.filter((item) => item.category?.id === product.category?.id && item.id !== product.id));
 });
 
-app.get("/api/products", (req, res) => {
+app.get("/api/products", (req, res): void => {
   const search = (req.query.search as string)?.toLowerCase() || "";
   const categoryId = Number(req.query.categoryId) || undefined;
   const page = Number(req.query.page) || 1;
@@ -205,54 +217,61 @@ app.get("/api/products", (req, res) => {
   res.json({ products: filtered.slice((page - 1) * limit, page * limit), total: filtered.length, page, limit });
 });
 
-app.get("/api/cart", (req, res) => {
+app.get("/api/cart", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const total = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   res.json({ items: cartItems, total });
 });
 
-app.get("/api/cart/items", (req, res) => {
+app.get("/api/cart/items", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   res.json(cartItems);
 });
 
-app.post("/api/cart/items", (req, res) => {
+app.post("/api/cart/items", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const { productId, quantity } = req.body;
   const product = products.find((p) => p.id === productId);
   
   if (!product) {
-    return res.status(404).json({ error: "Product not found" });
+    res.status(404).json({ error: "Product not found" });
+    return;
   }
   
   const existingItem = cartItems.find((item) => item.productId === productId);
@@ -272,16 +291,18 @@ app.post("/api/cart/items", (req, res) => {
   res.json(cartItems);
 });
 
-app.put("/api/cart/items/:id", (req, res) => {
+app.put("/api/cart/items/:id", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const id = Number(req.params.id);
@@ -290,23 +311,26 @@ app.put("/api/cart/items/:id", (req, res) => {
   const item = cartItems.find((item) => item.id === id);
   
   if (!item) {
-    return res.status(404).json({ error: "Cart item not found" });
+    res.status(404).json({ error: "Cart item not found" });
+    return;
   }
   
   item.quantity = quantity;
   res.json(cartItems);
 });
 
-app.delete("/api/cart/items/:id", (req, res) => {
+app.delete("/api/cart/items/:id", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const id = Number(req.params.id);
@@ -315,16 +339,18 @@ app.delete("/api/cart/items/:id", (req, res) => {
 });
 
 // Payment endpoints
-app.post("/api/checkout/create-payment-intent", (req, res) => {
+app.post("/api/checkout/create-payment-intent", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const { amount } = req.body;
@@ -334,16 +360,18 @@ app.post("/api/checkout/create-payment-intent", (req, res) => {
   });
 });
 
-app.post("/api/checkout/confirm-payment", (req, res) => {
+app.post("/api/checkout/confirm-payment", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const { paymentIntentId } = req.body;
@@ -355,22 +383,25 @@ app.post("/api/checkout/confirm-payment", (req, res) => {
 });
 
 // Order checkout endpoint
-app.post("/api/orders/checkout", (req, res) => {
+app.post("/api/orders/checkout", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   const { items, shippingAddress, paymentMethod } = req.body;
   
   if (!items || items.length === 0) {
-    return res.status(400).json({ error: "Cart is empty" });
+    res.status(400).json({ error: "Cart is empty" });
+    return;
   }
   
   const total = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
@@ -388,31 +419,35 @@ app.post("/api/orders/checkout", (req, res) => {
   res.json(order);
 });
 
-app.get("/api/orders", (req, res) => {
+app.get("/api/orders", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   res.json([]);
 });
 
-app.get("/api/orders/:id", (req, res) => {
+app.get("/api/orders/:id", (req, res): void => {
   const token = req.headers.authorization?.replace("Bearer ", "");
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   
   const user = users.find((u) => u.token === token);
   if (!user) {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return;
   }
   
   res.json({
