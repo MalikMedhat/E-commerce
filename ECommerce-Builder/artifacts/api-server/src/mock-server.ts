@@ -74,13 +74,16 @@ app.get("/api/health", (req, res) => {
 
 // Authentication endpoints
 app.post("/api/auth/register", (req, res) => {
+  console.log("Register request body:", req.body);
   const { email, password, name } = req.body;
   
   if (!email || !password || !name) {
+    console.log("Missing required fields:", { email: !!email, password: !!password, name: !!name });
     return res.status(400).json({ error: "Missing required fields" });
   }
   
   if (users.find((u) => u.email === email)) {
+    console.log("User already exists:", email);
     return res.status(400).json({ error: "User already exists" });
   }
   
@@ -93,6 +96,7 @@ app.post("/api/auth/register", (req, res) => {
   };
   
   users.push(newUser);
+  console.log("User registered successfully:", newUser.email);
   
   res.json({
     user: {
@@ -105,18 +109,22 @@ app.post("/api/auth/register", (req, res) => {
 });
 
 app.post("/api/auth/login", (req, res) => {
+  console.log("Login request body:", req.body);
   const { email, password } = req.body;
   
   if (!email || !password) {
+    console.log("Missing email or password:", { email: !!email, password: !!password });
     return res.status(400).json({ error: "Missing email or password" });
   }
   
   const user = users.find((u) => u.email === email && u.password === password);
   
   if (!user) {
+    console.log("Invalid credentials for:", email);
     return res.status(401).json({ error: "Invalid credentials" });
   }
   
+  console.log("Login successful:", user.email);
   res.json({
     user: {
       id: user.id,
@@ -261,6 +269,29 @@ app.post("/api/checkout/confirm-payment", (req, res) => {
     orderId: "ORD_" + Date.now(),
     paymentIntentId,
   });
+});
+
+// Order checkout endpoint
+app.post("/api/orders/checkout", (req, res) => {
+  const { items, shippingAddress, paymentMethod } = req.body;
+  
+  if (!items || items.length === 0) {
+    return res.status(400).json({ error: "Cart is empty" });
+  }
+  
+  const total = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+  
+  const order = {
+    id: "ORD_" + Date.now(),
+    items: items,
+    total: total,
+    status: "completed",
+    shippingAddress: shippingAddress || {},
+    paymentMethod: paymentMethod || "card",
+    createdAt: new Date().toISOString(),
+  };
+  
+  res.json(order);
 });
 
 app.get("/api/orders", (req, res) => {
