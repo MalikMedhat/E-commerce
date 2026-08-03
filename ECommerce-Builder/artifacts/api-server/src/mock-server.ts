@@ -169,6 +169,12 @@ app.get("/api/products/:id", (req, res) => {
   res.json(product);
 });
 
+app.get("/api/products/category/:categoryId", (req, res) => {
+  const categoryId = Number(req.params.categoryId);
+  const categoryProducts = products.filter((item) => item.category?.id === categoryId);
+  res.json(categoryProducts);
+});
+
 app.get("/api/products/:id/related", (req, res) => {
   const product = products.find((item) => item.id === Number(req.params.id));
   if (!product) return res.status(404).json({ error: "Product not found" });
@@ -200,15 +206,48 @@ app.get("/api/products", (req, res) => {
 });
 
 app.get("/api/cart", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const total = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   res.json({ items: cartItems, total });
 });
 
 app.get("/api/cart/items", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   res.json(cartItems);
 });
 
 app.post("/api/cart/items", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const { productId, quantity } = req.body;
   const product = products.find((p) => p.id === productId);
   
@@ -234,6 +273,17 @@ app.post("/api/cart/items", (req, res) => {
 });
 
 app.put("/api/cart/items/:id", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const id = Number(req.params.id);
   const { quantity } = req.body;
   
@@ -248,6 +298,17 @@ app.put("/api/cart/items/:id", (req, res) => {
 });
 
 app.delete("/api/cart/items/:id", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const id = Number(req.params.id);
   cartItems = cartItems.filter((item) => item.id !== id);
   res.json(cartItems);
@@ -255,6 +316,17 @@ app.delete("/api/cart/items/:id", (req, res) => {
 
 // Payment endpoints
 app.post("/api/checkout/create-payment-intent", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const { amount } = req.body;
   res.json({
     clientSecret: "mock_client_secret_" + Date.now(),
@@ -263,6 +335,17 @@ app.post("/api/checkout/create-payment-intent", (req, res) => {
 });
 
 app.post("/api/checkout/confirm-payment", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const { paymentIntentId } = req.body;
   res.json({
     success: true,
@@ -273,6 +356,17 @@ app.post("/api/checkout/confirm-payment", (req, res) => {
 
 // Order checkout endpoint
 app.post("/api/orders/checkout", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   const { items, shippingAddress, paymentMethod } = req.body;
   
   if (!items || items.length === 0) {
@@ -295,10 +389,32 @@ app.post("/api/orders/checkout", (req, res) => {
 });
 
 app.get("/api/orders", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   res.json([]);
 });
 
 app.get("/api/orders/:id", (req, res) => {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
+  const user = users.find((u) => u.token === token);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  
   res.json({
     id: req.params.id,
     items: cartItems,

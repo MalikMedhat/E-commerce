@@ -22,6 +22,11 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/featured")
+    public List<Product> getFeaturedProducts() {
+        return productService.getFeaturedProducts();
+    }
+
     @GetMapping("/category/{categoryId}")
     public List<Product> getProductsByCategoryId(@PathVariable Long categoryId) {
         return productService.getByCategoryId(categoryId);

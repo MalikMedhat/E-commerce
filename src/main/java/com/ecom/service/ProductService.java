@@ -19,6 +19,11 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> getFeaturedProducts() {
+        List<Product> allProducts = productRepository.findAll();
+        return allProducts.size() > 4 ? allProducts.subList(0, 4) : allProducts;
+    }
+
     public List<Product> getByCategoryId(Long categoryId) {
         return productRepository.findByCategoryId(categoryId);
     }
