@@ -1,0 +1,16 @@
+name = "ecommerce-app"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "cd ECommerce-Builder && pnpm install && pnpm run build"
+cwd = "."
+watch_dir = "ECommerce-Builder/artifacts/shop/src"
+
+[build.upload]
+format = "directory"
+directory = "./ECommerce-Builder/artifacts/shop/dist/public"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

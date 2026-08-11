@@ -46,6 +46,9 @@ dist/
 .env.*
 !.env.example
 
+# Cloudflare
+.config/
+
 # OS files
 .DS_Store
 Thumbs.db
