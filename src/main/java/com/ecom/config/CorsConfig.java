@@ -18,7 +18,7 @@ public class CorsConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "https://e-commerce-*-malikmedhat.vercel.app"
+                "https://e-commerce.012pp111.workers.dev/"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
