@@ -27,4 +27,17 @@ public class ProductService {
     public List<Product> getByCategoryId(Long categoryId) {
         return productRepository.findByCategoryId(categoryId);
     }
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+    }
+
+    public List<Product> getRelatedProducts(Long productId) {
+        Product product = getProductById(productId);
+        List<Product> categoryProducts = productRepository.findByCategoryId(product.getCategory().getId());
+        return categoryProducts.stream()
+                .filter(p -> p.getId() != productId)
+                .toList();
+    }
 }
