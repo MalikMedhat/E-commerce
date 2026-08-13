@@ -2,12 +2,8 @@ name = "e-commerce"
 compatibility_date = "2026-08-11"
 
 [build]
-command = "cd ECommerce-Builder && pnpm install && pnpm run build"
+command = "pnpm install && pnpm run build"
 cwd = "."
 
 [assets]
-directory = "./ECommerce-Builder/artifacts/shop/dist/public"
-
-# For Cloudflare Pages deployment (alternative to Workers)
-# Comment out the above [assets] section and use this instead:
-# pages_build_output_dir = "./ECommerce-Builder/artifacts/shop/dist/public"
+directory = "./artifacts/shop/dist/public"
